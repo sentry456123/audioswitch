@@ -119,7 +119,7 @@ else:
 
 target = env.Program(
     target = "AudioSwitch", 
-    source = ["AudioSwitch.cpp", "AudioPlaybackControl.cpp", env.RES('AudioSwitch.rc')], 
+    source = ["AudioSwitch.cpp", "AudioPlaybackControl.cpp", "DisplayText.cpp", env.RES('AudioSwitch.rc')], 
     LIBS = ["gdi32.lib", "user32.lib", "ole32.lib"]
 )
 

@@ -5,12 +5,11 @@
  * Macros
  * **************************************************************************/
 
- /* Exclude redundant APIs such as Cryptography, DDE, RPC, Shell, and Windows Sockets. */
+/* Exclude redundant APIs such as Cryptography, DDE, RPC, Shell, and Windows Sockets. */
 #define WIN32_LEAN_AND_MEAN
 
 /* Window class name for the window. */
-#define WINDOW_CLASS_NAME "AudioSwitchWindow"
-
+#define WINDOW_CLASS_NAME TEXT("AudioSwitchWindow")
 
 /* ***************************************************************************
  * Include Files
@@ -25,14 +24,12 @@
 #include <fcntl.h>
 #include <locale.h>
 
-
 /* ***************************************************************************
  * Functions
  * **************************************************************************/
- 
-LRESULT CALLBACK KeyboardProc( int, WPARAM, LPARAM );
 
-LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
+LRESULT CALLBACK KeyboardProc(int, WPARAM, LPARAM);
 
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 #endif

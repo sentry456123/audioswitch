@@ -4,7 +4,7 @@
 
 #include "AudioPlaybackControl.h"
 #include "IPolicyConfig.h"
-
+#include "DisplayText.h"
 
 /* ***************************************************************************
  * Constants
@@ -14,25 +14,21 @@ const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
 
 const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 
-
 /* ***************************************************************************
  * Functions
  * **************************************************************************/
 
 /* Sets default audio playback device to the one specified by ID. */
-HRESULT SetDefaultAudioPlaybackDevice( LPCWSTR devID )
-{
+HRESULT SetDefaultAudioPlaybackDevice(LPCWSTR devID) {
     IPolicyConfigVista *pPolicyConfig;
     HRESULT hr = CoCreateInstance(
         __uuidof(CPolicyConfigVistaClient),
-        NULL, 
-        CLSCTX_ALL, 
-        __uuidof(IPolicyConfigVista), 
-        (LPVOID *)&pPolicyConfig
-    );
+        NULL,
+        CLSCTX_ALL,
+        __uuidof(IPolicyConfigVista),
+        (LPVOID *)&pPolicyConfig);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = pPolicyConfig->SetDefaultEndpoint(devID, eConsole);
         pPolicyConfig->Release();
     }
@@ -40,11 +36,9 @@ HRESULT SetDefaultAudioPlaybackDevice( LPCWSTR devID )
     return hr;
 }
 
-
-/* Enumerates all active (plugged in) audio rendering endpoint devices and 
+/* Enumerates all active (plugged in) audio rendering endpoint devices and
  * switches default endpoint to the next from current. */
-void NextAudioPlaybackDevice( void )
-{
+void NextAudioPlaybackDevice(void) {
     HRESULT hr = S_OK;
     IMMDeviceEnumerator *pEnumerator = NULL;
     IMMDeviceCollection *pCollection = NULL;
@@ -61,12 +55,11 @@ void NextAudioPlaybackDevice( void )
     EXIT_ON_ERROR(hr)
 
     hr = CoCreateInstance(
-        CLSID_MMDeviceEnumerator, 
+        CLSID_MMDeviceEnumerator,
         NULL,
-        CLSCTX_ALL, 
+        CLSCTX_ALL,
         IID_IMMDeviceEnumerator,
-        (void**)&pEnumerator
-    );
+        (void **)&pEnumerator);
     EXIT_ON_ERROR(hr)
 
     hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDefaultEndpoint);
@@ -78,12 +71,11 @@ void NextAudioPlaybackDevice( void )
     hr = pEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &pCollection);
     EXIT_ON_ERROR(hr)
 
-    UINT  count;
+    UINT count;
     hr = pCollection->GetCount(&count);
     EXIT_ON_ERROR(hr)
-    
-    for (ULONG i = 0; i < count; i++)
-    {
+
+    for (ULONG i = 0; i < count; i++) {
         // Get pointer to endpoint number i.
         hr = pCollection->Item(i, &pEndpoint);
         EXIT_ON_ERROR(hr)
@@ -91,9 +83,8 @@ void NextAudioPlaybackDevice( void )
         // Get the endpoint ID string.
         hr = pEndpoint->GetId(&pwszID);
         EXIT_ON_ERROR(hr)
-        
-        if ( wcscmp( pwszDefaultID, pwszID ) == 0 ) 
-        {
+
+        if (wcscmp(pwszDefaultID, pwszID) == 0) {
             next = (i + 1 < count) ? i + 1 : 0;
             hr = pCollection->Item(next, &pNextEndpoint);
             EXIT_ON_ERROR(hr)
@@ -111,20 +102,22 @@ void NextAudioPlaybackDevice( void )
             // Get the endpoint ID string.
             hr = pNextEndpoint->GetId(&pwszNextID);
             EXIT_ON_ERROR(hr)
-                        
-            // Print endpoint friendly name and endpoint ID.
-            #ifdef DEBUG
-            printf("Endpoint %d: %S\n", next, varName.pwszVal);            
-            #endif
-            
+
+// Print endpoint friendly name and endpoint ID.
+#ifdef DEBUG
+            printf("Endpoint %d: %S\n", next, varName.pwszVal);
+#endif
+
+            DisplayText(varName.pwszVal);
+
             SetDefaultAudioPlaybackDevice(pwszNextID);
-            
+
             CoTaskMemFree(pwszNextID);
             SAFE_RELEASE(pNextEndpoint)
-            //PropVariantClear(&varName);
-            //SAFE_RELEASE(pProps)
+            // PropVariantClear(&varName);
+            // SAFE_RELEASE(pProps)
         }
-               
+
         CoTaskMemFree(pwszID);
         pwszID = NULL;
         SAFE_RELEASE(pEndpoint)
@@ -143,4 +136,3 @@ Exit:
     SAFE_RELEASE(pEndpoint)
     SAFE_RELEASE(pProps)
 }
-

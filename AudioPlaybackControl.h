@@ -5,12 +5,16 @@
  * Macros
  * **************************************************************************/
 
-#define EXIT_ON_ERROR(hres)  \
-    if (FAILED(hres)) { goto Exit; }
+#define EXIT_ON_ERROR(hres) \
+    if (FAILED(hres)) {     \
+        goto Exit;          \
+    }
 
-#define SAFE_RELEASE(punk)  \
-    if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
-
+#define SAFE_RELEASE(punk) \
+    if ((punk) != NULL) {  \
+        (punk)->Release(); \
+        (punk) = NULL;     \
+    }
 
 /* ***************************************************************************
  * Include Files
@@ -24,14 +28,12 @@
 #include <mmdeviceapi.h>
 #include <FunctionDiscoveryKeys_devpkey.h>
 
-
 /* ***************************************************************************
  * Functions
  * **************************************************************************/
- 
-HRESULT SetDefaultAudioPlaybackDevice( LPCWSTR );
 
-void NextAudioPlaybackDevice( void );
+HRESULT SetDefaultAudioPlaybackDevice(LPCWSTR);
 
+void NextAudioPlaybackDevice(void);
 
 #endif

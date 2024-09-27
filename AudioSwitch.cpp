@@ -27,16 +27,13 @@ bool _ctrlPressed = false;
 /* Attaches a console window to a regular Win32 app. */
 bool CreateConsole( void )
 {
-    if ( AllocConsole() )
-    {
-        int crt = _open_osfhandle( (long)GetStdHandle( STD_OUTPUT_HANDLE ), _O_TEXT );
-        *stdout = *_fdopen( crt, "w" );
-        setvbuf( stdout, NULL, _IONBF, NULL );
-        setlocale( LC_ALL, "Russian" );
-        return true;
-    }
+    AllocConsole();
 
-    return false;
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+
+    return true;
 }
 
 #endif
@@ -61,19 +58,6 @@ LRESULT CALLBACK KeyboardProc( int code, WPARAM wParam, LPARAM lParam )
             {
                 NextAudioPlaybackDevice();
             }
-
-            #ifdef DEBUG
-            printf( 
-                "vkCode(%d) scanCode(%d) ctrl(%s)\n"
-                , p->vkCode
-                , p->scanCode 
-                , _ctrlPressed ? "true" : "false"
-            );
-            if ( p->vkCode == VK_ESCAPE )
-            {
-                PostMessage( _window, WM_CLOSE, NULL, NULL );
-            } 
-            #endif
         }
     }
         
@@ -128,22 +112,16 @@ int WINAPI WinMain (
     _keyboard_hook = SetWindowsHookEx( WH_KEYBOARD_LL, (HOOKPROC)KeyboardProc, GetModuleHandle( NULL ), NULL );
     if ( _keyboard_hook )
     {
-        WNDCLASSEX wc;
-        MSG msg;
-        HICON icon = LoadIcon( hInstance, "10026" );
+        WNDCLASSEX wc{};
+        MSG msg{};
+        HICON icon = LoadIcon( hInstance, TEXT( "10026" ) );
 
-        wc.cbSize        = sizeof( WNDCLASSEX );
+        wc.cbSize        = sizeof wc;
         wc.lpszClassName = WINDOW_CLASS_NAME;
         wc.lpfnWndProc   = WndProc;
         wc.hInstance     = hInstance;
-        wc.cbClsExtra    = NULL;
-        wc.cbWndExtra    = NULL;
-        wc.style         = NULL;
         wc.hIconSm       = icon;
         wc.hIcon         = icon;
-        wc.hCursor       = NULL;
-        wc.hbrBackground = NULL;
-        wc.lpszMenuName  = NULL;
 
         _windowClass = RegisterClassEx( &wc );
         if ( _windowClass )
